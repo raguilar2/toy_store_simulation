@@ -1,0 +1,99 @@
+---
+title: 'Toy Store Simulation Report'
+author: "Ricardo Alexandro Aguilar"
+date: "11/18/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+header-includes: \usepackage{setspace}
+fontsize: 12pt
+---
+
+\doublespacing
+
+This simulation determines the starting price, minimum amount of each toy before reordering, and maximum amount of each toy that maximize profits. The starting prices are relative to the manufacturers suggested retail price (MSRP). These are the prices that will be used on November 8 (Day 1) and are adjusted by market trends in the last ten days. Similarly, the maximum amount of each toy and the minimum amount of each toy before ordering are also adjusted by the market trends in the last ten days.
+
+Many assumptions were made for this simulation. This simulation is built around the assumption that the identity of the "hot" toy is completely unknown, so all of the starting prices and probabilities for which toy a customer wants to purchase are equal on Day 1 of the simulation. Furthermore, this simulation assumes customers know a toy's MSRP and walk into the store with the intention of purchasing the toy. If they are prepared to purchase a toy at MSRP, they will always purchase the toy at a price lower than the MSRP but are less likely to purchase a toy at a price greater than the MSRP. This allows the store to sell more units when needed and prevents the prices from skyrocketing. Another assumption is that customers are willing to purchase toys at a higher price as Christmas Eve approaches. Thus, the probability of purchasing a toy increases with time. This means that the probability of purchasing a toy, in this simulation, increases with time and decreases with an increase price. The simulation also assumes that the customers (parents) do not know what the "hot" toy will be and will also learn as time goes on. Thus, the probability of which toy they will purchase is initially the same for all toys and is also adjusted by market trends. It is also assumed that the amount of customers will increase until after Black Friday where a slight decrease occurs until the following weekend. The amount of customers continues to increase from this point until Christmas Eve. Lastly, the simulation assumes that deliveries to restock on toys occur before customers can purchase toys on a given day.
+
+For simplicity, the MSRP was set to \$100. This means that \$90 is 10% below MSRP while \$125 is 25% above MSRP. The starting prices relative to MSRP that were examined range from 10% below MSRP to 25% above MSRP. The minimum amounts examined for each toy range from 200 to 800 while the maximum amounts range from 400 to 1200. In the event that the examined minimum is above the maximum, no order was placed until the amount in the inventory was less than the maximum. The amount of time until a delivery arrives was set to 10 days. Holding costs were set to \$1 per toy per day while the order costs were determined by the quantity ordered and the number of days since the simulation started ($costs = 20(quantity\;ordered) + days$). The expected amount of customers ranges from 10 to 25 per day. The expected total amount of toys a customer wants was set to 3 per customer.
+
+Each combination of price, minimum, and maximum is simulated 100 times to produce 100 averages of profits per day. The mean of those 100 averages was then recorded as the estimate for the average profits per day. The combination with the maximum estimate of daily profits was then selected to determine which price, minimum, and maximum would maximize profits. As seen in **Table 1**, the starting price should be the MSRP, with an initial minimum amount of 200 per toy before reordering and a initial maximum amount of 1,200 per toy.
+
+\pagebreak 
+
+# Appendix
+
+## Table 1: Estimated Daily Profits for Each Combination
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(dplyr)
+load("inputs_results.Rdata")
+
+# merges results into one data frame
+results_frame <-data.frame(results[,,1])
+for (i in 2:dim(results)[3]) {
+  results_frame <-rbind(results_frame, data.frame(results[,,i]))
+}
+
+# prepares column names for table by changing them to spaces
+colnames(results_frame) <- c(" ", " ", " ", " ")
+
+# prepares MSRP for table by making labels for each element of max_cuts
+results_frame$`%MSRP` <- rep(r_prop, length(max_cuts)) 
+
+# prepares Max Stock by first making a variable of only spaces and then
+# placing the values tested into the specified row
+results_frame$`Max Stock` <- ""
+
+for(i in 1:length(max_cuts)) {
+  results_frame$`Max Stock`[length(r_prop)*i - (length(r_prop) - 1)] <- max_cuts[i] 
+}
+
+# rearranges the variables to produce table
+final_table <- results_frame[, c(dim(results_frame)[2], 
+                                 dim(results_frame)[2] - 1, 
+                                 1:(dim(results_frame)[2] - 2))]
+
+```
+
+```{r, echo = FALSE, eval = FALSE}
+# writes LaTeX code that will be edited to produce table in desired format
+print(xtable(final_table), include.rownames = FALSE)
+```
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lll|rrrrr}
+  \hline
+            &        & Min Stock & \multicolumn{1}{l}{200} & \multicolumn{1}{l}{400} & \multicolumn{1}{l}{600} & \multicolumn{1}{l}{800} \\
+  Max Stock & \%MSRP &           & \multicolumn{1}{l}{ }   & \multicolumn{1}{l}{ }   & \multicolumn{1}{l}{ }   & \multicolumn{1}{l}{ }   \\ 
+  \hline
+400 & 90 & & 3003.2259 & 3002.334 & 2990.7467 & 2997.8643 \\ 
+   & 95 & & 3108.0137 & 3137.764 & 3143.3249 & 3129.0233 \\ 
+   & 100 & & 3238.3611 & 3215.0424 & 3230.1713 & 3235.3475 \\ 
+   & 105 & & 3242.3093 & 3206.9926 & 3236.6096 & 3226.745 \\ 
+   & 110 & & 3191.3516 & 3149.519 & 3153.0983 & 3153.7159 \\ 
+   & 125 & & 2816.4215 & 2781.4087 & 2773.7248 & 2792.6323 \\ 
+  600 & 90 & & 3063.0198 & 2970.918 & 2949.2077 & 2982.5354 \\ 
+   & 95 & & 3176.3705 & 3105.5622 & 3103.0045 & 3118.8634 \\ 
+   & 100 & & 3323.6515 & 3205.7855 & 3196.1202 & 3199.6338 \\ 
+   & 105 & & 3350.4764 & 3207.4631 & 3163.3531 & 3192.4884 \\ 
+   & 110 & & 3396.732 & 3193.7732 & 3126.7888 & 3124.1265 \\ 
+   & 125 & & 3104.5327 & 2825.4566 & 2766.0409 & 2768.2781 \\ 
+  900 & 90 & & 3488.0254 & 3163.722 & 2986.8989 & 2872.7853 \\ 
+   & 95 & & 3626.031 & 3338.5917 & 3164.1756 & 3026.501 \\ 
+   & 100 & & 3708.7874 & 3492.2832 & 3281.4128 & 3164.2801 \\ 
+   & 105 & & 3650.8268 & 3559.2639 & 3237.4603 & 3191.4616 \\ 
+   & 110 & & 3562.0492 & 3478.2411 & 3108.9574 & 3149.2412 \\ 
+   & 125 & & 3124.1987 & 3080.5261 & 2790.1525 & 2753.7957 \\ 
+  1200 & 90 & & 3516.0412 & 3498.2346 & 3239.3245 & 2908.2194 \\ 
+   & 95 & & 3630.9859 & 3618.9626 & 3485.0354 & 3085.7051 \\ 
+   & 100 & & 3723.0113 & 3705.0857 & 3652.7842 & 3161.0973 \\ 
+   & 105 & & 3634.5481 & 3637.3152 & 3583.0724 & 3139.4685 \\ 
+   & 110 & & 3569.1469 & 3538.9614 & 3513.1077 & 3081.2325 \\ 
+   & 125 & & 3087.3325 & 3100.3601 & 3092.6071 & 2864.2042 \\ 
+   \hline
+\end{tabular}
+\end{table}
