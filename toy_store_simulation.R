@@ -1,6 +1,7 @@
 # This file contains the toy store simulation. The simulation determines what 
 # combination of inventory cutoffs and %MSRP will maximize profits.
 
+source("helper.R")
 set.seed(213)
 
 r_prop <- c(90, 95, 100, 105, 110, 125) # %MSRP
@@ -31,7 +32,7 @@ for (l in 1:length(max_cuts)) {
         t0 <- 1 # replaces generating next customer
         t1 <- c(Inf, Inf, Inf) # day when delivery arrives for each toy
         
-        # intitialize dataset to keep track of daily sales per toy
+        # initialize dataset to keep track of daily sales per toy
         sales <- data.frame(toy1 = numeric(47), toy2 = numeric(47), toy3 = numeric(47))
         
         # simulates sales from November 8th to December 24th
@@ -109,3 +110,6 @@ for (l in 1:length(max_cuts)) {
     }
   }
 }
+
+# save results and inputs tested
+save(results, max_cuts, min_cuts, r_prop, file = "inputs_results.Rdata")
